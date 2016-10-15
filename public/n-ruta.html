@@ -1,0 +1,193 @@
+<link rel="import" href="../elements/nruta-elements.html">
+<link rel="import" href="bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="bower_components/google-map/google-map.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<dom-module id="n-ruta">
+  <template>
+    <style include="note-app-shared-styles">
+
+			host: {
+				height: 100%;
+				left: 0;
+				position: absolute;
+				right: 0;
+			}
+
+    	google-map {	
+				height: 100%;
+				bottom:0;
+				position:absolute;
+				top:0;
+				width:100%;
+				z-index: -1;
+			}
+			.m-inputs {
+				margin: 10px;
+			}
+			paper-input {
+				background: white;
+				
+				padding: 0px 5px;
+			}
+    </style>
+
+
+	  <nruta-toolbar
+      signed-in="[[signedIn]]"
+      on-sign-out="signOut">
+    </nruta-toolbar>
+
+    <nruta-login
+	    on-sign-in="signIn"
+	    signed-in="[[signedIn]]"
+	    disabled="[[!online]]">
+		</nruta-login>
+
+		<firebase-auth
+	    id="auth"
+	    app-name="nruta"
+	    provider="google"
+	    signed-in="{{signedIn}}"
+	    user="{{user}}">
+		</firebase-auth>
+
+<!-- 		<paper-fab
+		  icon="add"
+		  on-tap="create"
+		  disabled="[[!online]]"
+		  aria-label="Add note">
+		</paper-fab> -->
+
+<!-- 		<na-editor
+		  id="editor"
+		  note="{{editableNote}}"
+		  on-close="commitChange">
+		</na-editor> -->
+
+<!-- 		<firebase-document
+	    id="document"
+	    app-name="nruta"
+	    path="[[editableNoteId]]"
+	    data="{{editableNote}}">
+		</firebase-document> -->
+
+<!-- 		<firebase-query
+	    id="query"
+	    app-name="nruta"
+	    path="/usuarios/[[user.uid]]"
+	    data="{{usuarios}}">
+		</firebase-query> -->
+
+<!-- 		<app-indexeddb-mirror
+	    session="[[user.uid]]"
+	    key="usuarios"
+	    data="{{usuarios}}"
+	    persisted-data="{{persistedNotes}}">
+		</app-indexeddb-mirror> -->
+
+<!-- 		<div class="notes">
+		  <template is="dom-repeat" items="[[persistedNotes]]" as="usuario">
+		    <na-note
+		        id$="[[usuario.$key]]"
+		        title="[[usuario.title]]"
+		        body="[[usuario.body]]"
+		        on-tap="edit">
+		    </na-note>
+		  </template>
+		</div> -->
+
+	<google-map latitude="19.432711775616433" longitude="-99.13325428962708" api-key="AIzaSyCp3JFa06414X9bCKZssArt_3qgfPQA7X0" zoom="14" get-location="{{signedIn}}" fit-to-markers="true">
+
+	<template is="dom-repeat" items="{{pos_coords}}">
+	  <google-map-marker latitude="{{item.lat}}" longitude="{{item.lon}}" title="Probando" opacity="0.9">Hola Julio</google-map-marker>
+	</template>
+
+	<!-- <template>
+		<google-map-marker latitude="{{pos_coords.lat}}" longitude="{{pos_coords.lon}}"
+      draggable="true" title="Go Giants!">
+      	
+      </google-map-marker>
+      </template> -->
+	</google-map>
+	
+	<div class="m-inputs">
+		<paper-input label="Origen"></paper-input>
+		<paper-input label="Destino"></paper-input>
+	</div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'n-ruta',
+
+      timeout: {
+        type: Number,
+        value: 5000
+      },
+
+      pos_coords: {
+        type: Array,
+        value: function() { return []; }
+      },
+
+      attached: function() {
+        this.async(function() {
+          this._getLocation();
+        });
+      },
+      _getLocation: function() {
+        var _success = this._setPosition.bind(this);
+        var _error = this._getError.bind(this);
+
+        if (navigator.geolocation) {
+          //setInterval(function(){
+           navigator.geolocation.getCurrentPosition(_success, _error, { 
+             enableHighAccuracy: true,
+             maximumAge:10000,
+             timeout: 5000
+           }); 
+          //}, this.timeout);
+          
+        }
+        else {
+        	console.dir("geolocation not supported");
+        }
+      },
+      _setPosition: function(coord) {
+        this.pos_coords = [{lat: coord.coords.latitude,lon: coord.coords.longitude}];
+        console.log(this.pos_coords)
+        // this.draw_line.push({lat: coord.coords.latitude,lon: coord.coords.longitude});
+      },
+      _getError: function(error) {
+        console.log(error)
+      },
+
+      behaviors: [Polymer.NoteAppBehavior],
+
+      signIn: function() {
+	      this.$.auth.signInWithPopup();
+	    },
+
+	    getLocation: function(isLogged) {
+	    	console.log("funciona")
+	    }
+	    
+
+	    // get notesPath() {
+     //    return '/usuarios/' + this.user.uid;
+     //  },
+
+     //  toEditableId: function(noteId) {
+     //    return this.notesPath + '/' + noteId;
+     //  },
+
+     //  get isEditable() {
+     //    return this.online;
+     //  }
+    });
+  </script>
+</dom-module>
