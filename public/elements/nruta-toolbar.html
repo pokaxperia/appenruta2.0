@@ -19,9 +19,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--layout-horizontal);
         @apply(--layout-center);
         background-color: #F1E521;
-        color: var(--paper-purple-50);
+        color: black;
         padding: 6px 8px;
         z-index: 99;
+        font-family: 'Roboto';
         --paper-icon-button-disabled: {
           color: var(--paper-purple-50);
         };
@@ -31,10 +32,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-size: 14px;
         flex-grow: 1;
         margin: 9px 0;
+        font-weight: 400 !important;
       }
 
       iron-icon {
         margin-right: 0.5em;
+      }
+      paper-icon-button {
+        color: black;
       }
 
       @media (min-width: 640px) {
@@ -49,7 +54,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
     <iron-icon icon="bookmark"></iron-icon>
-    <h1>Notes</h1>
+    <h1>En Ruta</h1>
     <iron-icon icon="cloud" hidden$="[[!online]]"></iron-icon>
     <iron-icon icon="cloud-off" hidden$="[[online]]"></iron-icon>
     <paper-icon-button
