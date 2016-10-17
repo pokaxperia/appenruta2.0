@@ -6,10 +6,14 @@
 <link rel="import" href="bower_components/paper-input/paper-input.html">
 <link rel="import" href="bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
 
 <dom-module id="n-ruta">
 	<template>
-		<style include="note-app-shared-styles">
+		<style include="note-app-shared-styles iron-flex iron-flex-alignment">
 
 			google-map {	
 				height: 100%;
@@ -19,42 +23,76 @@
 				width:100%;
 				z-index: -1;
 			}
-			.m-inputs {
-				margin: 10px;
-				background:  rgba(0,0,0,0.75);
-			}
+
 			paper-input {
 				padding: 0px 5px;
 			}
+
 			paper-spinner-lite.black {
 				--paper-spinner-color: white;
 			}
 			
-			paper-spinner-lite.thin {
-		    --paper-spinner-stroke-width: 1px;
-		  }
-		  div[prefix] {
-		  	position: absolute;
-  	    left: 50%;
-  	    bottom: 0;
-		  }
+			/* 			paper-spinner-lite.thin {
+				--paper-spinner-stroke-width: 1px;
+			} */
 
-		  .origin-marker {
-		  	position:absolute;
-		  	top:50%;left:50%;
-		  	z-index:1;
-		  }
+		  div[prefix] {
+				position: absolute;
+				left: 50%;
+				bottom: 0;
+			}
+
+			/* .origin-marker {
+				position:absolute;
+				top:50%;left:50%;
+				z-index:1;
+			} */
 			paper-input{
-				--paper-input-container-color: #F1E521;
+				--paper-input-container-color: white;
 				--paper-input-container-focus-color:  #F1E521;
 				--paper-input-container-input-color:  white;
 			}
 
-		  .paper-input{
-		  	font-size: 14px !important;
-		  }
-		</style>
+			.paper-input{
+				font-size: 14px !important;
+			}
 
+			.m-inputs {
+				margin: 0px 0px 10px;
+				background: rgba(0,0,0,0.55);
+			}
+
+			.m-inputs-container {
+				padding: 0px 5px;
+				@apply(--layout-horizontal);
+				@apply(--layout-center);
+			}
+
+			.m-inputs-container__child {
+				@apply(--layout-flex);
+			}
+
+			.m-inputs-container__icon {
+				padding-right: 10px;
+			}
+
+			iron-icon.close {
+				--iron-icon-width:  20px;
+				--iron-icon-height:  20px;
+				--iron-icon-fill-color: white;
+				margin: 0px 15px;
+			}
+
+			@media screen and (max-width: 768px) {
+				.m-inputs-container--mobile {
+					display: block;
+				}
+				iron-icon.close {
+					margin: 0px 0px 0px 10px;
+				}
+				
+			}
+		</style>
 
 		<nruta-toolbar
 			signed-in="[[signedIn]]"
@@ -75,41 +113,41 @@
 			user="{{user}}">
 		</firebase-auth>
 
-<!-- 		<paper-fab
+		<!-- <paper-fab
 			icon="add"
 			on-tap="create"
 			disabled="[[!online]]"
 			aria-label="Add note">
 		</paper-fab> -->
 
-<!-- 		<na-editor
+		<!-- <na-editor
 			id="editor"
 			note="{{editableNote}}"
 			on-close="commitChange">
 		</na-editor> -->
 
-<!-- 		<firebase-document
+		<!-- <firebase-document
 			id="document"
 			app-name="nruta"
 			path="[[editableNoteId]]"
 			data="{{editableNote}}">
 		</firebase-document> -->
 
-<!-- 		<firebase-query
+		<!-- <firebase-query
 			id="query"
 			app-name="nruta"
 			path="/usuarios/[[user.uid]]"
 			data="{{usuarios}}">
 		</firebase-query> -->
 
-<!-- 		<app-indexeddb-mirror
+		<!-- <app-indexeddb-mirror
 			session="[[user.uid]]"
 			key="usuarios"
 			data="{{usuarios}}"
 			persisted-data="{{persistedNotes}}">
 		</app-indexeddb-mirror> -->
 
-<!-- 		<div class="notes">
+		<!-- <div class="notes">
 			<template is="dom-repeat" items="[[persistedNotes]]" as="usuario">
 				<na-note
 						id$="[[usuario.$key]]"
@@ -120,30 +158,62 @@
 			</template>
 		</div> -->
 	<google-map
-		latitude="{{originUserCoords.lat}}"
-		longitude="{{originUserCoords.lon}}"
+		id="google_map"
+		latitude="[[originUserCoords.lat]]"
+		longitude="[[originUserCoords.lon]]"
 		api-key="AIzaSyCp3JFa06414X9bCKZssArt_3qgfPQA7X0"
-		zoom="14"
-		fit-to-markers="true"
+		zoom="{{dynamicZoom}}"
+		fit-to-markers="{{existsDestinyAddress}}"
 		styles="[[styleArray]]"
+		
 		geolocation="[[setGeoLocation(signedIn)]]"
 		disable-street-view-control="true"
 		disable-default-ui="true"
-		drag-events = true
-		on-google-map-dragend="updateUserLocationFromMap">
+		mouse-events="false"
+		drag-events="false"
+		on-google-map-dragend="updateUserLocationFromMap"
+		>
 
-			<google-map-marker latitude="{{originUserCoords.lat}}" longitude="{{originUserCoords.lon}}" title="User Location" draggable="true" mouse-events="true" on-google-map-marker-mouseup="updateUserLocationFromMarker" icon="./images/black_marker.png"></google-map-marker>
+			<!-- Dynamic Marker -->
+			
+				<google-map-marker latitude="{{originUserCoords.lat}}" longitude="{{originUserCoords.lon}}" title="User Location" draggable="false" mouse-events="false" icon="./images/yellow_marker.png"></google-map-marker>
+			
+
+			
+			<!-- Static Marker -->
+			<!-- <template >
+				<google-map-marker latitude="{{originUserCoords.lat}}" longitude="{{originUserCoords.lon}}" title="User Location" draggable="false" mouse-events="false" icon="./images/red_marker.png"></google-map-marker>
+			</template> -->
+			
+			<!-- Destiny Marker -->
+				<google-map-marker latitude="{{destinyUserCoords.lat}}" longitude="{{destinyUserCoords.lon}}" title="User Location" icon="./images/black_marker.png"></google-map-marker>
 
 	</google-map>
 	
-	<div class="m-inputs">
-		<paper-input label="Origen" id="originValue" value="{{userAddress}}">
-			<div prefix><paper-spinner-lite class="black thin" active="{{originLocated}}"></paper-spinner-lite></div>
-			{{this.userAddress}}
-		</paper-input>
-
-		<paper-input label="Destino"></paper-input>
-		
+	<!-- <div class="horizontal layout m-inputs"> -->
+		<div class="m-inputs-container m-inputs m-inputs-container--mobile">
+			<div class="m-inputs-container m-inputs-container__child">
+				<div class="m-inputs-container__icon"><iron-icon src="./images/yellow_marker.png"></div>
+				<div class="m-inputs-container__child">
+					<paper-input  label="Origen" id="originValue0" value="{{originAddressString::input}}">
+						<div prefix>
+							<paper-spinner-lite class="black thin" active="{{hasOriginAddress}}"></paper-spinner-lite>
+						</div>
+					</paper-input>
+				</div>
+				<div>
+					<div><iron-icon class="close" icon="icons:close" id="clearAddress0"></div>
+				</div>
+			</div>
+			
+			<div class="m-inputs-container m-inputs-container__child">
+				<div class="m-inputs-container__icon"><iron-icon src="./images/black_marker.png"></div>
+				<paper-input class="m-inputs-container__child" id="originValue1" label="Destino" value="{{destinyAddressString::input}}"></paper-input>
+				<div>
+					<div><iron-icon class="close" icon="icons:close" id="clearAddress1"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	</template>
@@ -174,22 +244,63 @@
 						]
 					}
 				];
-
+				this.dynamicZoom = 17;
 			},
+			listeners: {
+				'clearAddress0.tap': 'clearAddressTap0',
+				'clearAddress1.tap': 'clearAddressTap1' 
+			},
+
+			observers: [
+				'_searchOriginAddress(originAddressString)',
+				'_searchDestinyAddress(destinyAddressString)'
+			],
 
 			styleArray: {
 				type: Array
 			},
-
-			originLocated: {
+			fitMapToMarkers: {			
 				type: Boolean,
 				notify: true,
 				value: false
 			},
 
-			userAddress: {
+			dynamicZoom: {
+				type: Number,
+				notify: true,
+				value: 15
+			},
+
+			istsDestiny: {
+				type: Boolean,
+				notify: true,
+				value: false
+			},
+
+			_autocomplete: {
+				type: String
+			},
+
+			hasOriginAddress: {
+				type: Boolean,
+				notify: true,
+				value: false
+			},
+
+			originAddressString: {
 				type: String,
 				notify: true
+			},
+
+			destinyAddressString: {
+				type: String,
+				notify: true
+			},
+
+			istsDestinyAddress: {
+				type: Boolean,
+				notify: true,
+				value: false
 			},
 
 			geolocation: {
@@ -198,7 +309,7 @@
 			},
 
 			latlng: {
-			  type: Object
+				type: Object
 			},
 
 			signedIn: {
@@ -212,10 +323,24 @@
 				value: 5000
 			},
 
+			mapCoords: {
+				type: Object,
+				value: function() {
+					return {lat: 19.432711775616433, lon: -99.10325428962708 }; 
+				},
+				notify:true
+			},
+
 			originUserCoords: {
-				type: Array,
-				value: function() { return []; }
-			},			
+				type: Object,
+				notify:true
+			},
+
+			destinyUserCoords: {
+				type: Object,
+				value: function() { return []; },
+				notify:true
+			},	
 
 			signIn: function() {
 				this.$.auth.signInWithPopup();
@@ -224,31 +349,17 @@
 			setGeoLocation: function(signedIn) {
 				if(signedIn){
 					this.async(function() {
-					  this._getUserLocation();
+						this.hasOriginAddress = true;
+						this.existsDestiny = false;
+						this._getUserLocation();
 					});
 				}
 			},
-			updateUserLocationFromMap: function(e){
-				this.originLocated = true;
-				this.userAddress = "";
-				var newPosition = {coords:{ latitude: e.path[0].latitude, longitude: e.path[0].longitude }}
-				this._setUserPosition(newPosition);
-			},
-
-			updateUserLocationFromMarker: function(e){
-				this.originLocated = true;
-				this.userAddress = "";
-				var newPosition = {coords:{ latitude: e.detail.latLng.lat(), longitude: e.detail.latLng.lng() }}
-				this._setUserPosition(newPosition);
-			
-			},
 
 			_getUserLocation: function() {
-				var _success = this._setUserPosition.bind(this);
-				var _error = this._getError.bind(this);
-				this.originLocated = true;
+				var _success = this._setSuccessPosition.bind(this);
+				var _error = this._errorLocation.bind(this);
 				if (navigator.geolocation) {
-
 					navigator.geolocation.getCurrentPosition(_success, _error, { 
 					enableHighAccuracy: true,
 					maximumAge:10000
@@ -272,26 +383,95 @@
 				// }
 			},
 
-			_setUserPosition: function(coord) {
+			_setSuccessPosition: function(coord) {
 				if (coord) {
-					var _setUserLocation = this.setUserLocation.bind(this);
+					this.dynamicZoom = 17;
+					var _setOriginDataLocation = this.setOriginDataLocation.bind(this);
 					var geocoder = new google.maps.Geocoder;
 					latlng = {lat: parseFloat(coord.coords.latitude), lng: parseFloat(coord.coords.longitude)};
-					geocoder.geocode({'location': latlng}, _setUserLocation);
+					geocoder.geocode({'location': latlng}, _setOriginDataLocation);
 				}
 			},
 
-			setUserLocation: function(result) {
-					if (result) {
-						this.originLocated = false;
-						this.userAddress = result[0].formatted_address;
-						this.originUserCoords = { lat: parseFloat(result[0].geometry.location.lat()), lon: parseFloat(result[0].geometry.location.lng()) };
-					}
+			setOriginDataLocation: function(result) {
+				if (result) {
+					this.dynamicZoom = 17;
+					this.hasOriginAddress = false;
+					this.originAddressString = result[0].formatted_address;
+					this.mapCoords = { lat: parseFloat(result[0].geometry.location.lat()), lon: parseFloat(result[0].geometry.location.lng()) };
+					this.originUserCoords = { lat: parseFloat(result[0].geometry.location.lat()), lon: parseFloat(result[0].geometry.location.lng()) };
+					
+				}
 			},
 
-			_getError: function(error) {
+			updateUserLocationFromMap: function(e){
+				if (this.existsDestiny === false) {
+					this.hasOriginAddress = true;
+					this.originAddressString = "";
+					var newPosition = {coords:{ latitude: e.path[0].latitude, longitude: e.path[0].longitude }}
+					this._setSuccessPosition(newPosition);
+				} 
+				
+			},
+
+			updateUserLocationFromMarker: function(e){
+				this.hasOriginAddress = true;
+				this.originAddressString = "";
+				var newPosition = {coords:{ latitude: e.detail.latLng.lat(), longitude: e.detail.latLng.lng() }}
+				this._setSuccessPosition(newPosition);
+			},
+
+			updateUserDestinyLocationFromMarker: function(e){
+				this.hasOriginAddress = true;
+				this.originAddressString = "";
+				var newDestinyPosition = {coords:{ latitude: e.detail.latLng.lat(), longitude: e.detail.latLng.lng() }}
+				this._setSuccessPosition(newDestinyPosition);
+			},
+
+			_errorLocation: function(error) {
 				console.log(error)
 			},
+
+			clearAddressTap0: function(e) {
+				this.$.originValue0.value="";
+			},
+
+			clearAddressTap1: function(e) {
+				this.$.originValue1.value="";
+				this.set('existsDestiny',false);
+				this.existsDestinyAddress = false;
+				this.set('fitMapToMarkers',false);
+				this.destinyUserCoords =  {lat: "", lon: "" };
+				this._getUserLocation();
+			},
+
+			_searchOriginAddress: function(){
+				var _autocomplete = new google.maps.places.Autocomplete(document.getElementById('originValue0'));
+				_autocomplete.addListener('place_changed', function(){
+					var newAddress = _autocomplete.getPlace();
+					this.originUserCoords =  {lat: parseFloat(newAddress.geometry.location.lat()), lon: parseFloat(newAddress.geometry.location.lng()) }
+				}.bind(this));
+			},
+
+			_searchDestinyAddress: function(destinyAddressString){
+				if(destinyAddressString){
+					this.fitMapToMarkers = false;
+				}
+				
+				var _autocompleteDestiny = new google.maps.places.Autocomplete(document.getElementById('originValue1'));
+				_autocompleteDestiny.addListener('place_changed', function(){
+						this.fitMapToMarkers = false;
+					var newAddress = _autocompleteDestiny.getPlace();
+					if (newAddress) {
+						this.fitMapToMarkers = false;
+						this.destinyUserCoords =  {lat: parseFloat(newAddress.geometry.location.lat()), lon: parseFloat(newAddress.geometry.location.lng()) }
+						this.fitMapToMarkers = true;
+						this.existsDestiny = true;
+						this.existsDestinyAddress = true;
+					}
+				}.bind(this));
+			},
+
 			
 
 			// get notesPath() {
