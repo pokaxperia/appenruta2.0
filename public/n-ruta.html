@@ -83,6 +83,15 @@
 				margin: 0px 15px;
 			}
 
+			.m-form {
+				background: white;
+				bottom: 0;
+				left: 0;
+				position: absolute;
+				right: 0;
+				top: 200px;
+			}
+
 			@media screen and (max-width: 768px) {
 				.m-inputs-container--mobile {
 					display: block;
@@ -216,6 +225,13 @@
 		</div>
 	</div>
 
+		<template is="dom-if" if="{{mapCompleted}}">
+			<div class="m-form">
+				<paper-input label="text input"></paper-input>
+				<paper-input label="text input"></paper-input>
+			</div>
+		</template>
+
 	</template>
 
 	<script>
@@ -313,6 +329,11 @@
 			},
 
 			signedIn: {
+				type: Boolean,
+				notify: true,
+				value: false
+			},
+			mapCompleted: {
 				type: Boolean,
 				notify: true,
 				value: false
@@ -468,6 +489,10 @@
 						this.fitMapToMarkers = true;
 						this.existsDestiny = true;
 						this.existsDestinyAddress = true;
+						this.mapCompleted = true;
+					}
+					else {
+						this.mapCompleted = false;
 					}
 				}.bind(this));
 			},
