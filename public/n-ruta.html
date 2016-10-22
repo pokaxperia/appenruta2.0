@@ -74,6 +74,7 @@
 
 			.m-inputs-container__icon {
 				padding-right: 10px;
+				width:  ;
 			}
 
 			iron-icon.close {
@@ -204,7 +205,7 @@
 			<div class="m-inputs-container m-inputs-container__child">
 				<div class="m-inputs-container__icon"><iron-icon src="./images/yellow_marker.png"></div>
 				<div class="m-inputs-container__child">
-					<paper-input  label="Origen" id="originValue0" value="{{originAddressString::input}}">
+					<paper-input  label="Recolección" id="originValue0" value="{{originAddressString::input}}">
 						<div prefix>
 							<paper-spinner-lite class="black thin" active="{{hasOriginAddress}}"></paper-spinner-lite>
 						</div>
@@ -217,7 +218,7 @@
 			
 			<div class="m-inputs-container m-inputs-container__child">
 				<div class="m-inputs-container__icon"><iron-icon src="./images/black_marker.png"></div>
-				<paper-input class="m-inputs-container__child" id="originValue1" label="Destino" value="{{destinyAddressString::input}}"></paper-input>
+				<paper-input class="m-inputs-container__child" id="originValue1" label="Entrega" value="{{destinyAddressString::input}}"></paper-input>
 				<div>
 					<div><iron-icon class="close" icon="icons:close" id="clearAddress1"></div>
 				</div>
@@ -225,12 +226,12 @@
 		</div>
 	</div>
 
-		<template is="dom-if" if="{{mapCompleted}}">
+<!-- 		<template is="dom-if" if="{{mapCompleted}}">
 			<div class="m-form">
 				<paper-input label="text input"></paper-input>
 				<paper-input label="text input"></paper-input>
 			</div>
-		</template>
+		</template> -->
 
 	</template>
 
@@ -489,11 +490,11 @@
 						this.fitMapToMarkers = true;
 						this.existsDestiny = true;
 						this.existsDestinyAddress = true;
-						this.mapCompleted = true;
+						//this.mapCompleted = true;
 					}
-					else {
-						this.mapCompleted = false;
-					}
+					// else {
+					// 	this.mapCompleted = false;
+					// }
 				}.bind(this));
 			},
 
